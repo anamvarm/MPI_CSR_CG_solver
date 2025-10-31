@@ -1,0 +1,81 @@
+# Compiled Object files
+*.o
+*.obj
+*.ko
+*.elf
+
+# Compiled executables
+*.exe
+*.out
+*.app
+cg_solver
+bin/cg_solver
+
+# Build directories
+build/
+bin/
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+*.so
+*.so.*
+*.dylib
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Kernel Module Compile Results
+*.mod*
+*.cmd
+.tmp_versions/
+modules.order
+Module.symvers
+Mkfile.old
+dkms.conf
+
+# Editor and IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Output files
+solution.txt
+*.log
+
+# PBS/Torque job output
+cg_output.*.log
+*.e[0-9]*
+*.o[0-9]*
+
+# Core dumps
+core
+core.*
+
+# Profiling data
+gmon.out
+*.gcda
+*.gcno
+*.gcov
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Backup files
+*.bak
+*.backup
+
