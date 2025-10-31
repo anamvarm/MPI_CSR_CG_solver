@@ -1,0 +1,74 @@
+#!/bin/bash
+#PBS -N cg_solver_job
+#PBS -j oe
+#PBS -o cg_output.$PBS_JOBID.log
+
+# Parallel CG Solver - PBS Job Submission Script
+# ===============================================
+# This script submits a job to run the CG solver on a PBS/Torque cluster
+
+# Default values (can be overwritten by qsub flags)
+NODES=${PBS_NUM_NODES:-1}
+PPN=${PBS_NUM_PPN:-2}
+
+echo "================================================================"
+echo "Parallel CG Solver Job"
+echo "================================================================"
+echo "Job ID: $PBS_JOBID"
+echo "Job Name: $PBS_JOBNAME"
+echo "Job started at: $(date)"
+echo "Working directory: $PBS_O_WORKDIR"
+echo "----------------------------------------------------------------"
+
+# Set up OpenMPI environment
+export MPI_RUN=/usr/mpi/gcc/openmpi-1.4.1/bin/mpirun
+export PATH=/usr/mpi/gcc/openmpi-1.4.1/bin:$PATH
+export LD_LIBRARY_PATH=/usr/mpi/gcc/openmpi-1.4.1/lib:$LD_LIBRARY_PATH
+
+echo "Using OpenMPI at: $MPI_RUN"
+$MPI_RUN --version || { echo "ERROR: MPI not functional!"; exit 1; }
+
+# Calculate total number of processes
+nprocs=$((NODES * PPN))
+echo "Running on $nprocs cores across $NODES nodes"
+echo "Nodes assigned:"
+uniq $PBS_NODEFILE | tr '\n' ' '
+echo ""
+echo "----------------------------------------------------------------"
+
+# Configuration (edit these as needed)
+MATRIX_FILE="examples/matrix.csr"
+B_FILE="examples/b.txt"
+OUTPUT_FILE="solution.txt"
+MAX_ITER=500
+TOL=1e-6
+
+# Run the CG solver
+echo "Starting CG solver at $(date)"
+echo "Configuration:"
+echo "  Matrix: $MATRIX_FILE"
+echo "  RHS vector: $B_FILE"
+echo "  Output: $OUTPUT_FILE"
+echo "  Max iterations: $MAX_ITER"
+echo "  Tolerance: $TOL"
+echo "----------------------------------------------------------------"
+
+$MPI_RUN -np $nprocs -hostfile $PBS_NODEFILE ./bin/cg_solver \
+    -matrix $MATRIX_FILE \
+    -b $B_FILE \
+    -output $OUTPUT_FILE \
+    -max_iter $MAX_ITER \
+    -tol $TOL
+
+# Check exit status
+EXIT_CODE=$?
+echo "----------------------------------------------------------------"
+if [ $EXIT_CODE -eq 0 ]; then
+    echo "Job completed successfully at $(date)"
+    echo "================================================================"
+    exit 0
+else
+    echo "ERROR: Job failed with exit code $EXIT_CODE" >&2
+    echo "================================================================"
+    exit $EXIT_CODE
+fi
